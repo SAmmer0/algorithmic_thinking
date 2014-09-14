@@ -21,7 +21,7 @@ def bfs_visited(ugraph, start_node):
             if not (neighborhood in visited):
                 visited.append(neighborhood)
                 queue.append(neighborhood)
-    return visited
+    return set(visited)
 
 
 def cc_visited(ugraph):
@@ -32,7 +32,7 @@ def cc_visited(ugraph):
     remained = ugraph.keys()
     while len(remained) > 0:
         this_node = remained[0]
-        connected_node = set(bfs_visited(ugraph, this_node))
+        connected_node = bfs_visited(ugraph, this_node)
         ans.append(connected_node)
         remained = list(set(remained).difference(connected_node))
     return ans
@@ -42,6 +42,8 @@ def largest_cc_size(ugraph):
     '''
     Takes the undirected graph ugraph and returns the size (an integer) of the largest connected component in ugraph.
     '''
+    if len(ugraph) == 0:
+        return 0
     connected = cc_visited(ugraph)
     size_connected = [len(item) for item in connected]
     return max(size_connected)
@@ -57,6 +59,7 @@ def compute_resilience(ugraph, attack_order):
         largest_size = largest_cc_size(ugraph)
         ans.append(largest_size)
         ugraph = remove_node(ugraph, attack_node)
+    ans.append(largest_cc_size(ugraph))
     return ans
 
 

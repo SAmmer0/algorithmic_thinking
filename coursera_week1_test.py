@@ -17,9 +17,9 @@ sample3 = {1: [],
 
 # bfs_visited function test
 sample1_bfs_visited = cwp.bfs_visited(sample1, 2)
-assert set(sample1_bfs_visited) == set([2]), 'Sample1 bfs_visited error'
+assert sample1_bfs_visited == set([2]), 'Sample1 bfs_visited error'
 sample2_bfs_visited = cwp.bfs_visited(sample2, 1)
-assert set(sample2_bfs_visited) == set(
+assert sample2_bfs_visited == set(
     [1, 2, 3, 5, 4, 6]), 'Sample2 bfs_visited error'
 
 # cc_visited function test
