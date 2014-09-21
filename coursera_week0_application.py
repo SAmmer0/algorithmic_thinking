@@ -6,7 +6,7 @@ from random import random
 import DPA as dpa
 
 
-def data2graph(fp=r'C:\users\howard\desktop\data1.txt'):
+def data2graph(fp=r'C:\users\howard\desktop\agorithmic thinking\data1.txt', num_node=27770, num_edge=352807, undirected=False):
     '''
     Convert data in txt file to dictionary formated graph
     '''
@@ -15,7 +15,22 @@ def data2graph(fp=r'C:\users\howard\desktop\data1.txt'):
     for line in data_file.readlines():
         d = line.strip().split()
         data[int(d[0])] = [int(s) for s in d[1:]]
+    assert (num_node, num_edge) == num_node_edge(data, undirected), 'Error, the number of node and edge does match'
     return data
+
+
+# compute node number and edge number
+def num_node_edge(graph, undirected=True):
+    '''
+    Return a tuple (number of node, number of edge)
+    '''
+    num_node = len(graph.keys())
+    num_edge = 0
+    for node in graph:
+        num_edge += len(graph[node])
+    if undirected:
+        num_edge /= 2
+    return (num_node, num_edge)
 
 
 def compute_in_degree(digraph):
@@ -79,19 +94,26 @@ def plot_log(nor_distribution):
     plt.show()
 
 
-def generate_ER(node_num, p):
+def generate_ER(node_num, p, directed=True):
     '''
-    Generate a random graph
+    Generate a random graph(directed or undirected)
     '''
     ans = {}
     for node_i in xrange(node_num):
-        ans[node_i] = []
-        for node_j in xrange(node_num):
+        ans.setdefault(node_i, [])
+        if not directed:
+            start_node = node_i
+        else:
+            start_node = 0
+        for node_j in xrange(start_node, node_num):
             if node_i == node_j:
                 continue
             rnd = random()
             if rnd < p:
                 ans[node_i].append(node_j)
+                if not directed:
+                    ans.setdefault(node_j, [])
+                    ans[node_j].append(node_i)
     return ans
 
 
@@ -127,7 +149,7 @@ def main1():
 def main_rand():
     node_num = 10000
     probability = 0.001
-    rand_graph = generate_ER(node_num, probility)
+    rand_graph = generate_ER(node_num, probability)
     in_degree = in_degree_distribution(rand_graph)
     nor_distribution = normalize_distribution(in_degree)
     plot_log(nor_distribution)
@@ -142,4 +164,5 @@ def main_DPA():
     plot_log(nor_distribution)
 
 if __name__ == '__main__':
-    main_DPA()
+    #main_DPA()
+    data2graph()

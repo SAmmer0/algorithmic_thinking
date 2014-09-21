@@ -63,11 +63,28 @@ def compute_resilience(ugraph, attack_order):
     return ans
 
 
+def resilience_DSDS(ugraph, attack_order):
+    '''
+    Compute network resilience using disjoint set data structure to imporve
+    efficient of the algorithm
+    '''
+    pass
+
+
+def graph2disjointset(graph):
+    '''
+    Transfer a graph(usually a undirected graph) into a disjoint set data
+    structure
+    '''
+    pass
+
+
 def remove_node(ugraph, node):
     '''
     Auxiliary function to remove given node and edges from a undirected graph
     '''
     for neighborhood in ugraph[node]:
-        ugraph[neighborhood] = list(set(ugraph[neighborhood]).difference(set([node])))
+        ugraph[neighborhood] = list(
+            set(ugraph[neighborhood]).difference(set([node])))
     ugraph.pop(node)
     return ugraph
