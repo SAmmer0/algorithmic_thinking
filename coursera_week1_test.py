@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import coursera_week1_project as cwp
+import week1_application as wa
 
 # some test samples
 sample1 = {1: [], 2: [], 3: [], 4: []}
@@ -50,3 +51,10 @@ print sample2_resilience
 attack_order3 = [1, 4]
 sample3_resilience = cwp.compute_resilience(sample3, attack_order3)
 print sample3_resilience
+
+# random_ordrer function test
+rnd_order1 = wa.random_order(sample1)
+assert set(rnd_order1) == set(sample1.keys()), 'Sample1 random_order error'
+
+rnd_order2 = wa.random_order(sample2)
+assert set(rnd_order2) == set(sample2.keys()), 'Sample2 random_order error'
