@@ -5,6 +5,7 @@ import UPA as upa
 import coursera_week1_project as cw1p
 from random import shuffle
 import matplotlib.pyplot as plt
+from week1_application2 import fast_target_order
 
 
 def generate_UPA(num_n, num_m):
@@ -90,5 +91,45 @@ def main():
     plot_curves(example_plot_msg, ER_plot_msg, UPA_plot_msg)
 
 
+def main1():
+    '''
+    Main function to run program, this time the attack order is determined by fast_target_order algorithm
+    '''
+    ER_P = 3112.0 / (1346.0 * 1347 / 2)
+    UPA_M = int(3112.0 / 1347)
+    UPA_N = 1347
+    example_graph = cw0a.data2graph(
+        r'C:\Users\Howard\Desktop\agorithmic thinking\data_week1.txt', 1347, 3112, True)
+    ER_graph = cw0a.generate_ER(1347, ER_P, False)
+    UPA_graph = generate_UPA(UPA_N, UPA_M)
+    example_atk_order = fast_target_order(example_graph)
+    assert len(example_atk_order) == len(example_graph.keys()
+                                         ), 'Error, example graph does match its fast target order(%d != %d)' %(len(example_atk_order), len(example_graph.keys()))
+    ER_atk_order = fast_target_order(ER_graph)
+    assert len(ER_atk_order) == len(ER_graph.keys()
+                                    ), 'Error, ER graph does not match its fast target order'
+    UPA_atk_order = fast_target_order(UPA_graph)
+    assert len(UPA_atk_order) == len(UPA_graph.keys()
+                                     ), 'Error, UPA graph does match its fast target order'
+    example_resilience = cw1p.compute_resilience(
+        example_graph, example_atk_order)
+    assert len(example_resilience) == len(
+        example_atk_order) + 1, 'Error, example graph resilience does not match'
+    ER_resilience = cw1p.compute_resilience(ER_graph, ER_atk_order)
+    assert len(ER_resilience) == len(
+        ER_atk_order) + 1, 'Error, ER graph resilience does not match'
+    UPA_resilience = cw1p.compute_resilience(UPA_graph, UPA_atk_order)
+    assert len(UPA_resilience) == len(
+        UPA_atk_order) + 1, 'Error, UPA graph resilience does not match'
+    example_plot_msg = (example_resilience, len(
+        example_atk_order), 'Given Computer Network', None)
+    ER_plot_msg = (
+        ER_resilience, len(ER_atk_order), 'ER Graph')
+    UPA_plot_msg = (UPA_resilience, len(
+        UPA_atk_order), 'UPA Graph', 'n = 1347, m = 3112')
+    plot_curves(example_plot_msg, ER_plot_msg, UPA_plot_msg)
+
+
 if __name__ == '__main__':
-    main()
+    # main()
+    main1()
