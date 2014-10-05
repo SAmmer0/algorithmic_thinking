@@ -65,7 +65,7 @@ def load_desktop_data(fpath):
     with open(fpath, 'r') as data_file:
         data = data_file.read()
         data_lines = data.split('\n')
-        print "loaed", len(data_lines), "data points"
+        print "Loaded", len(data_lines), "data points"
         data_tokens = [line.split(',') for line in data_lines]
     return [[tokens[0], float(tokens[1]), float(tokens[2]), int(tokens[3]), float(tokens[4])] for tokens in data_tokens]
 #
@@ -117,12 +117,12 @@ def run_example():
         singleton_list.append(alg_cluster.Cluster(
             set([line[0]]), line[1], line[2], line[3], line[4]))
 
-    cluster_list = sequential_clustering(singleton_list, 15)
-    print "Displaying", len(cluster_list), "sequential clusters"
+    # cluster_list = sequential_clustering(singleton_list, 15)
+    # print "Displaying", len(cluster_list), "sequential clusters"
 
-    cluster_list = alg_project3_solution.hierarchical_clustering(
-        singleton_list, 9)
-    print "Displaying", len(cluster_list), "hierarchical clusters"
+    # cluster_list = alg_project3_solution.hierarchical_clustering(
+    #     singleton_list, 9)
+    # print "Displaying", len(cluster_list), "hierarchical clusters"
 
     cluster_list = alg_project3_solution.kmeans_clustering(
         singleton_list, 9, 5)
@@ -134,4 +134,5 @@ def run_example():
     else:
         alg_clusters_simplegui.PlotClusters(data_table, cluster_list)
 
-run_example()
+if __name__ == '__main__':
+    run_example()

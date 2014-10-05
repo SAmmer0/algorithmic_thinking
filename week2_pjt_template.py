@@ -43,22 +43,11 @@ def bf_closest_pairs(cluster_list):
     return min_dist_pair
 
 
-def bf_closest_set(cluster_list):
+def slow_helper(cluster_list):
     '''
-    Brute force method to compute the closest pairs, but return a set
+    Helper function which will implement most work for the slow_closest_pairs
     '''
-    ans = set([])
-    min_dist_pair = (float('inf'), -1, -1)
-    for idx_i in xrange(len(cluster_list) - 1):
-        for idx_j in xrange(idx_i + 1, len(cluster_list)):
-            this_pair = pair_distance(cluster_list, idx_i, idx_j)
-            if min_dist_pair[0] == this_pair[0]:
-                ans.update(set([this_pair]))
-            elif min_dist_pair[0] > this_pair[0]:
-                ans = set([])
-                ans.update(set([this_pair]))
-                min_dist_pair = this_pair
-    return ans
+    pass
 
 
 def slow_closest_pairs(cluster_list):
@@ -73,7 +62,7 @@ def slow_closest_pairs(cluster_list):
     """
     # base case
     if len(cluster_list) <= 3:
-        return bf_closest_set(cluster_list)
+        return bf_closest_pairs(cluster_list)
 
     # divided and conque
     hcoord_and_index = [(cluster_list[idx].horiz_center(), idx)
@@ -91,51 +80,42 @@ def slow_closest_pairs(cluster_list):
     horiz_right = [cluster_list[idx] for idx in horiz_right_order]
 
     left_pairs = slow_closest_pairs(horiz_left)
-    left_pairs_update = set([])
-    for item in left_pairs:
-        this_pair = (item[0], horiz_left_order[item[1]],
-                     horiz_left_order[item[2]])
-        left_pairs_update.update(set([this_pair]))
+    left_pairs = (left_pairs[0], horiz_left_order[left_pairs[1]],
+                  horiz_left_order[left_pairs[2]])
 
     right_pairs = slow_closest_pairs(horiz_right)
-    right_pairs_update = set([])
-    for item in right_pairs:
-        this_pair = (item[0], horiz_right_order[item[1]],
-                     horiz_right_order[item[2]])
-        right_pairs_update.update(set([this_pair]))
+    right_pairs = (right_pairs[0], horiz_right_order[right_pairs[1]],
+                   horiz_right_order[right_pairs[2]])
 
-    # answer formated as set
-    left_dist = list(left_pairs_update)[0][0]
-    right_dist = list(right_pairs_update)[0][0]
-    min_dist = min(left_dist, right_dist)
-    ans = set([])
-    if left_dist < right_dist:
-        ans.update(left_pairs_update)
-    elif left_dist > right_dist:
-        ans.update(right_pairs_update)
-    else:
-        ans.update(left_pairs_update)
-        ans.update(right_pairs_update)
+    min_dist_pair = min(left_pairs, right_pairs)
 
     # merge
     vcoord_and_index = [(cluster_list[idx].vert_center(), idx)
                         for idx in xrange(len(cluster_list))
-                        if abs(cluster_list[idx].horiz_center() - horiz_mid) < min_dist]
+                        if (abs(cluster_list[idx].horiz_center() - horiz_mid)
+                            < min_dist_pair[0])]
     vcoord_and_index.sort()
     vert_order = [vcoord_and_index[idx][1]
                   for idx in xrange(len(vcoord_and_index))]
 
     for idx_i in xrange(len(vert_order) - 1):
         for idx_j in xrange(idx_i + 1, min(len(vert_order), idx_i + 4)):
-            this_pair = pair_distance(cluster_list, vert_order[idx_i],
-                                      vert_order[idx_j])
-            if this_pair[0] < min_dist:
-                ans = set([])
-                ans.update(set([this_pair]))
-                min_dist = this_pair[0]
-            elif this_pair[0] == min_dist:
-                ans.update(set([this_pair]))
-    return ans
+            min_dist_pair = min(min_dist_pair,
+                                pair_distance(cluster_list, idx_i, idx_j))
+    return min_dist_pair
+
+
+def in_interval(centre, dist):
+    '''
+    Return a function which is used to judge whether a point is in the given
+    area
+    '''
+    def _in_interval(horiz_and_idx):
+        if abs(centre - horiz_and_idx[0]) <= dist:
+            return True
+        else:
+            return False
+    return _in_interval
 
 
 def fast_helper(cluster_list, horiz_order, vert_order):
@@ -169,18 +149,29 @@ def fast_helper(cluster_list, horiz_order, vert_order):
     left_horiz_order = horiz_order[:m_idx]
     right_horiz_order = horiz_order[m_idx:]
 
-    left_vert_order = [idx for idx in vert_order if idx in left_horiz_order]
-    right_vert_order = [idx for idx in vert_order if idx in right_horiz_order]
+    left_horiz_set = set(left_horiz_order)
+    left_vert_order = [idx for idx in vert_order
+                       if idx in left_horiz_set]
+
+    right_horiz_set = set(right_horiz_order)
+    right_vert_order = [idx for idx in vert_order
+                        if idx in right_horiz_set]
 
     left_pairs = fast_helper(cluster_list, left_horiz_order, left_vert_order)
-    right_pairs = fast_helper(
-        cluster_list, right_horiz_order, right_vert_order)
+    right_pairs = fast_helper(cluster_list,
+                              right_horiz_order, right_vert_order)
     min_dist_pair = min(left_pairs, right_pairs)
+    min_dist = min_dist_pair[0]
 
     # conquer
-    cross_vert_order = [idx for idx in vert_order if abs(
-        cluster_list[idx].horiz_center() - horiz_mid) < min_dist_pair[0]]
-
+    # horiz_and_idx = [(cluster_list[idx].horiz_center(), idx)
+    #                  for idx in vert_order]
+    # judge_in_interval = in_interval(horiz_mid, min_dist)
+    # filte_res = filter(judge_in_interval, horiz_and_idx)
+    # cross_vert_order = [item[1] for item in filte_res]
+    cross_vert_order = [idx for idx in vert_order
+                        if (abs(cluster_list[idx].horiz_center() - horiz_mid) <
+                            min_dist)]
     for idx_i in xrange(len(cross_vert_order) - 1):
         for idx_j in xrange(idx_i + 1, min(len(cross_vert_order), idx_i + 4)):
             min_dist_pair = min(min_dist_pair,

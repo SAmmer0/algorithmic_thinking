@@ -29,11 +29,9 @@ for data in test_sample1:
 bfresult_sample1 = wtp.bf_closest_pairs(test_sample1)
 slowresult_sample1 = wtp.slow_closest_pairs(test_sample1)
 fastresult_sample1 = wtp.fast_closest_pair(test_sample1)
-bf_set_sample4 = wtp.bf_closest_set(test_sample4)
 print "bf result", bfresult_sample1
 print "slow result", slowresult_sample1
 print "fast result", fastresult_sample1
-print 'bf set result', bf_set_sample4
 
 print '\n'
 print 'Sample 2'
