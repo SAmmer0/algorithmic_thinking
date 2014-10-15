@@ -158,6 +158,77 @@ def agree_precentage(seq_x, seq_y):
             count_same += 1
     return count_same / total * 100
 
+
+def generate_random_seq(seq_len, choosing_list):
+    '''
+    Generate a random sequence which has a length of seq_len, elements are
+    choosing from choosing_list
+    '''
+    ans = list()
+    choosing_list = list(choosing_list)
+    for idx in xrange(seq_len):
+        this_element = random.choice(choosing_list)
+        ans.append(this_element)
+    return ''.join(ans)
+
+
+def question3():
+    '''
+    Solution for question 3
+    '''
+    amino_acids = 'ACBEDGFIHKMLNQPSRTWVYXZ'
+    scoring_matrix = read_scoring_matrix(PAM50_URL)
+    human = read_protein(HUMAN_EYELESS_URL)
+    fruit_fly = read_protein(FRUITFLY_EYELESS_URL)
+
+    random_human = generate_random_seq(len(human), amino_acids)
+    random_fruitfly = generate_random_seq(len(fruit_fly), amino_acids)
+
+    # question 1
+    alignment_matrix_loc = student.compute_alignment_matrix(random_human,
+                                                            random_fruitfly,
+                                                            scoring_matrix,
+                                                            False)
+    alignment_loc = student.compute_local_alignment(random_human,
+                                                    random_fruitfly,
+                                                    scoring_matrix,
+                                                    alignment_matrix_loc)
+    print "Local alignment:"
+    print "Score:", alignment_loc[0]
+    print "Random human:", alignment_loc[1]
+    print "Random fruit fly:", alignment_loc[2]
+
+    # question 2
+    pax = read_protein(CONSENSUS_PAX_URL)
+    random_human_loc = [s for s in alignment_loc[1] if s != '-']
+    random_human_loc = ''.join(random_human_loc)
+
+    random_fruitfly_loc = [s for s in alignment_loc[2] if s != '-']
+    random_fruitfly_loc = ''.join(random_fruitfly_loc)
+
+    alignment_matrix_hp = student.compute_alignment_matrix(random_human_loc,
+                                                           pax,
+                                                           scoring_matrix,
+                                                           True)
+    alignment_matrix_fp = student.compute_alignment_matrix(random_fruitfly_loc,
+                                                           pax,
+                                                           scoring_matrix,
+                                                           True)
+
+    alignment_hp = student.compute_global_alignment(random_human_loc, pax,
+                                                    scoring_matrix,
+                                                    alignment_matrix_hp)
+    alignment_fp = student.compute_global_alignment(random_fruitfly_loc, pax,
+                                                    scoring_matrix,
+                                                    alignment_matrix_fp)
+    
+    same_pre_hp = agree_precentage(alignment_hp[1], alignment_hp[2])
+    same_pre_fp = agree_precentage(alignment_fp[1], alignment_fp[2])
+    print "The aggree precentage of random human and pax is: %.3f%%" % same_pre_hp
+    print "The aggree precentage of random fruitfly and pax is: %.3f%%" % same_pre_fp
+
+
 if __name__ == '__main__':
     # question1()
-    question2()
+    # question2()
+    question3()
