@@ -163,3 +163,19 @@ def compute_alignment_score(seq_x, seq_y, scoring_matrix):
     for idx in xrange(len(seq_x)):
         score += scoring_matrix[seq_x[idx]][seq_y[idx]]
     return score
+
+
+def compute_alignment(seq_x, seq_y, scoring_matrix, global_flag):
+    """
+    Combine compute alignment_matrix and compute_global/local_alignment
+    return required alignment only
+    """
+    alignment_matrix = compute_alignment_matrix(seq_x, seq_y, scoring_matrix,
+                                                global_flag)
+    if global_flag:
+        alignment = compute_global_alignment(seq_x, seq_y, scoring_matrix,
+                                             alignment_matrix)
+    else:
+        alignment = compute_local_alignment(seq_x, seq_y, scoring_matrix,
+                                            alignment_matrix)
+    return alignment
