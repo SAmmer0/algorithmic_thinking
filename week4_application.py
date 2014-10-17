@@ -84,6 +84,89 @@ def read_words(filename):
     return word_list
 
 
+def generate_null_distribution(seq_x, seq_y, scoring_matrix, num_trials):
+    """
+    Generate distribution of score using random method
+    """
+    ans = dict()
+    for trial in xrange(num_trials):
+        rand_y = list(seq_y)
+        random.shuffle(rand_y)
+        rand_y = ''.join(rand_y)
+        alignment = student.compute_alignment(seq_x, rand_y, scoring_matrix,
+                                              False)
+        score = alignment[0]
+        ans.setdefault(score, 0)
+        ans[score] += 1
+    return ans
+
+
+def score_normalization(score):
+    """
+    Return a normalized score distribution, tuple of two list, one for score,
+    one for frenquence
+    """
+    score_copy = dict()
+    for key in score:
+        score_copy[key] = score[key]
+
+    total = 0.0
+
+    for key in score_copy:
+        total += score_copy[key]
+
+    for key in score_copy:
+        score_copy[key] /= total
+
+    score_list = sorted(score_copy.keys())
+    frenquency_list = [score_copy[key] for key in score_list]
+
+    return score_list, frenquency_list
+
+
+def plot_distribution(x_axis, y_axis):
+    """
+    Plot bar graph for given distribution
+    """
+    plt.bar(x_axis, y_axis, color='b')
+    plt.xlabel("Score")
+    plt.ylabel("Frenquence")
+    plt.title("Distribution of Score")
+    plt.show()
+
+
+def mean(distribution):
+    """
+    Compute the mean value of a given distribution
+    The distribution is normalized and given as a tuple, formated as
+    (value_list, frenquence_list)
+    """
+    ans = 0.0
+    for value, frenquency in zip(distribution[0], distribution[1]):
+        ans += value * frenquency
+    return ans
+
+
+def std_deviation(distribution):
+    """
+    Compute the standard deviation of a given distribution
+    The distribution is given as a dictionary(normalized)
+    """
+    total = 0.0
+    mu = mean(distribution)
+    for value, frenquency in zip(distribution[0], distribution[1]):
+        total += ((value - mu) ** 2) * frenquency
+    total = math.sqrt(total)
+    return total
+
+
+def z_score(score, mean, sd):
+    """
+    Compute z-score
+    """
+    return float((score - mean) / sd)
+
+
 def question1():
     '''
     Solver program for question 1
@@ -221,14 +304,46 @@ def question3():
     alignment_fp = student.compute_global_alignment(random_fruitfly_loc, pax,
                                                     scoring_matrix,
                                                     alignment_matrix_fp)
-    
+
     same_pre_hp = agree_precentage(alignment_hp[1], alignment_hp[2])
     same_pre_fp = agree_precentage(alignment_fp[1], alignment_fp[2])
     print "The aggree precentage of random human and pax is: %.3f%%" % same_pre_hp
     print "The aggree precentage of random fruitfly and pax is: %.3f%%" % same_pre_fp
 
 
+def question45():
+    """
+    Solution for question 4 and 5
+    """
+    human = read_protein(HUMAN_EYELESS_URL)
+    fruitfly = read_protein(FRUITFLY_EYELESS_URL)
+    scoring_matrix = read_scoring_matrix(PAM50_URL)
+
+    alignment_hf = student.compute_alignment(human, fruitfly, scoring_matrix,
+                                             False)
+
+    random.seed(1000)
+    alignment_score = generate_null_distribution(human, fruitfly,
+                                                 scoring_matrix, 1000)
+    score, frenquency = score_normalization(alignment_score)
+    
+    with open('backup.csv', 'w', ) as backup:
+        for s, f in zip(score, frenquency):
+            backup.write(str(s) + ',' + str(f) + '\n')
+
+    mu = mean((score, frenquency))
+    sd = std_deviation((score, frenquency))
+    zscore = z_score(alignment_hf[0], mu, sd)
+
+    print "Mean of generated distribution is:", mu
+    print "standard deviation of generated distribution is:", sd
+    print "z-score for human vs. fruitfly is:", zscore
+
+    plot_distribution(score, frenquency)
+
+
 if __name__ == '__main__':
     # question1()
     # question2()
-    question3()
+    # question3()
+    question45()
