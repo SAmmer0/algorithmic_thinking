@@ -167,6 +167,33 @@ def z_score(score, mean, sd):
     return float((score - mean) / sd)
 
 
+def edit_distance(word_x, word_y, word_score_matrix):
+    """
+    Return the edit distance of two given words
+    """
+    alignment = student.compute_alignment(word_x, word_y, word_score_matrix, True)
+    return len(word_x) + len(word_y) - alignment[0]
+
+
+def check_spelling(checked_word, dist, word_list):
+    """
+    Returns the set of all words that are within edit distance dist of the
+    string checked_word.
+    """
+    alphbet = "abcdefghijklmnopqrstuvwxyz-"
+    word_score_matrix = student.build_scoring_matrix(alphbet, 2, 1, 0)
+
+    checked_word = checked_word.lower()
+
+    ans = list()
+
+    for word in word_list:
+        edit_dist = edit_distance(word, checked_word, word_score_matrix)
+        if edit_dist <= dist:
+            ans.append(word)
+    return set(ans)
+
+
 def question1():
     '''
     Solver program for question 1
@@ -326,7 +353,7 @@ def question45():
     alignment_score = generate_null_distribution(human, fruitfly,
                                                  scoring_matrix, 1000)
     score, frenquency = score_normalization(alignment_score)
-    
+
     with open('backup.csv', 'w', ) as backup:
         for s, f in zip(score, frenquency):
             backup.write(str(s) + ',' + str(f) + '\n')
@@ -342,8 +369,20 @@ def question45():
     plot_distribution(score, frenquency)
 
 
+def question8():
+    """
+    Solution for question 8
+    """
+    word_list = read_words(WORD_LIST_URL)
+    humble_set = check_spelling("humble", 1, word_list)
+    firefly_set = check_spelling("firefly", 2, word_list)
+    print "humble:", humble_set
+    print "firefly:", firefly_set
+
+
 if __name__ == '__main__':
     # question1()
     # question2()
     # question3()
-    question45()
+    # question45()
+    question8()
